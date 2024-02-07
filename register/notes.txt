@@ -1,0 +1,65 @@
+https://bootsnipp.com/tags/registration
+
+const express = require("express")
+const mongoose = require("mongoose");
+const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+
+const app = express ();
+dotenv.config();
+
+const port = process.env.PORT || 3000;
+
+const username = process.env.MONGODB_USERNAME;
+const password = process.env.MONGODB_PASSWORD;
+mongoose.connect('mongodb+srv://${username}:${password}@cluster0.jalz6sy.mongodb.net/registrationform',{
+    useNewUrlParser : true,
+    useUnifiedTopology : true,
+})
+
+const registerationSchema = new mongoose.Schema({
+    name : String,
+    email : String,
+    password : String
+})
+
+const Registeration = mongoose.model("Registration",registerationSchema);
+
+app.use(bodyParser.urlencoded ({ extended: true }));
+app.use(bodyParser.json());
+
+// FOR DISPLAYING HTML PAGE
+app.get("/", (req,res)=>{
+    res.sendFile(__dirname + "/register/index.html");
+})
+
+app.post("/register",async (req,res)=>{
+    try{
+        const{name, emailmail, password} = req.body;
+
+        const registerationData = new Registertaion({
+            name, 
+            email,
+            password
+        })
+        await registerationData.save();
+        res.redirect("/success")
+    }
+    catch(error){
+        console.log(error);
+        res.redirect("error")
+    }
+})
+
+
+app.get("/success", (req, res)=>{
+    res.sendFile(__dirname+"/register/success.html")
+})
+
+app.get("/error", (req, res)=>{
+    res.sendFile(__dirname+"/register/error.html")
+})
+// Listining on 
+app.listen(port, ()=>{
+    console.log('Server is running on the port ${port}');
+})
